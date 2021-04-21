@@ -44,10 +44,18 @@ module.exports = {
    */
   async generateSystemNotification (payload) {
     try {
-      if (!config.notifications.api.url) { return logger.error('notification event aborted. url required') }
-      if (!payload) { return logger.error('notification event aborted. invalid payload %o', payload) }
-      if (!payload.topic) { return logger.error('notification event aborted. invalid payload topic %o', payload) }
-      if (!payload.data) { return logger.error('notification event aborted. invalid payload data %o', payload) }
+      if (!config.notifications.api.url) {
+        return logger.error('notification event aborted. url required')
+      }
+      if (!payload) {
+        return logger.error('notification event aborted. invalid payload %o', payload)
+      }
+      if (!payload.topic) {
+        return logger.error('notification event aborted. invalid payload topic %o', payload)
+      }
+      if (!payload.data) {
+        return logger.error('notification event aborted. invalid payload data %o', payload)
+      }
 
       if (payload.data && payload.data.model) {
         if (payload.data.model.constructor.name === 'model') {

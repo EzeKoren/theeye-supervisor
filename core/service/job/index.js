@@ -264,7 +264,7 @@ module.exports = {
 
     // send and wait before creating the job of the first task
     // to ensure dispatching events in order
-    await WorkflowJobCreatedNotification({ wJob, user, customer })
+    await workflowJobCreatedNotification({ wJob, user, customer })
 
     // create first task job
     await this.create(
@@ -1016,21 +1016,50 @@ const isObject = (value) => {
 /**
  * @return {Promise}
  */
-const WorkflowJobCreatedNotification = ({ wJob, user, customer }) => {
+const workflowJobCreatedNotification = ({ wJob, user, customer }) => {
+  const job = wJob
   return App.notifications.generateSystemNotification({
     topic: TopicsConstants.job.crud,
     data: {
       operation: Constants.CREATE,
       organization: customer.name,
       organization_id: customer._id,
-      model_id: wJob._id,
-      model_type: wJob._type,
-      model: wJob
+      model_id: job._id,
+      model_type: job._type,
+      //model: job
+      model: {
+        _id: job._id.toString(),
+        _type: job._type,
+        id: job._id.toString(),
+        type: job.type,
+        name: job.name,
+        acl: job.acl,
+        lifecycle: job.lifecycle,
+        state: job.state,
+        workflow_id: job.workflow_id,
+        workflow_job_id: job.workflow_job_id,
+        creation_date: job.creation_date,
+        customer_id: job.customer_id,
+        order: job.order,
+        user_id: job.user_id,
+        user_inputs: job.user_inputs,
+        user_inputs_members: job.user_inputs_members,
+        task_id: job.task._id,
+        task: {
+          id: job.task._id.toString(),
+          _id: job.task._id.toString(),
+          type: job.task.type,
+          _type: job.task._type,
+          name: job.task.name,
+        }
+      }
     }
   })
 }
 
 /**
+ * Required by the Sync API
+ *
  * Emit the event "job finished execution" after all possible outcomes.
  *
  * @return {Promise}
@@ -1044,7 +1073,24 @@ const emitJobFinishedNotification = ({ job }) => {
       organization: job.customer_name,
       organization_id: job.customer_id,
       model_id: job._id,
-      model_type: job._type
+      model_type: job._type,
+      //model: job
+      model: {
+        _id: job._id.toString(),
+        _type: job._type,
+        id: job._id.toString(),
+        type: job.type,
+        name: job.name,
+        acl: job.acl,
+        lifecycle: job.lifecycle,
+        state: job.state,
+        workflow_id: job.workflow_id,
+        workflow_job_id: job.workflow_job_id,
+        task: {
+          id: job.task_id.toString(),
+          _id: job.task_id.toString(),
+        }
+      }
       //task_id: job.task_id
     }
   })

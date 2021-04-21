@@ -37,7 +37,22 @@ module.exports = async (operation, topic, input) => {
         organization_id: job.customer_id,
         model_id: job._id,
         model_type: job._type,
-        model: job.toObject(),
+        model: {
+          _id: job._id.toString(),
+          _type: job._type,
+          id: job._id.toString(),
+          type: job.type,
+          lifecycle: job.lifecycle,
+          state: job.state,
+          name: job.name,
+          workflow_id: job.workflow_id,
+          workflow_job_id: job.workflow_job_id,
+          task_id: job.task_id,
+          task: {
+            id: job.task_id.toString(),
+            _id: job.task_id.toString(),
+          }
+        },
         approvers: (task && task.approvers) || undefined
       }
     })
