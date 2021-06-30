@@ -46,44 +46,38 @@ module.exports = {
      * cannot use job.save since jobs are not mongoose document
      *
      */
-    //let jobs = []
     const dispatchJobExecutionRecursive = (
       idx, jobs, terminateRecursion
     ) => {
       if (idx===jobs.length) { return terminateRecursion() }
       let job = JobModels.Job.hydrate(jobs[idx])
-      //job.populate('task', err => {
-        //if (err) { return terminateRecursion(err) }
 
-        // Cancel this job and process next
-        if (App.jobDispatcher.jobMustHaveATask(job) && !job.task) {
-          // cancel invalid job
-          job.lifecycle = LifecycleConstants.CANCELED
-          job.save(err => {
-            if (err) { logger.error('%o', err) }
+      // Cancel this job and process next
+      if (App.jobDispatcher.jobMustHaveATask(job) && !job.task) {
+        // cancel invalid job
+        job.lifecycle = LifecycleConstants.CANCELED
+        job.save(err => {
+          if (err) { logger.error('%o', err) }
+          dispatchJobExecutionRecursive(++idx, jobs, terminateRecursion)
+        })
+
+        RegisterOperation(Constants.UPDATE, TopicsConstants.job.crud, { job })
+      } else {
+        allowedMultitasking(job, (err, allowed) => {
+          if (!allowed) {
+            // just ignore this one
             dispatchJobExecutionRecursive(++idx, jobs, terminateRecursion)
-          })
+          } else {
+            job.lifecycle = LifecycleConstants.ASSIGNED
+            job.save(err => {
+              if (err) { logger.error('%s', err) }
+              terminateRecursion(err, job)
+            })
 
-          //RegisterOperation(Constants.UPDATE, TopicsConstants.task.cancelation, { job })
-          RegisterOperation(Constants.UPDATE, TopicsConstants.job.crud, { job })
-        } else {
-          allowedMultitasking(job, (err, allowed) => {
-            if (!allowed) {
-              // just ignore this one
-              dispatchJobExecutionRecursive(++idx, jobs, terminateRecursion)
-            } else {
-              job.lifecycle = LifecycleConstants.ASSIGNED
-              job.save(err => {
-                if (err) { logger.error('%s', err) }
-                terminateRecursion(err, job)
-              })
-
-              //RegisterOperation(Constants.UPDATE, TopicsConstants.task.assigned, { job })
-              RegisterOperation(Constants.UPDATE, TopicsConstants.job.crud, { job })
-            }
-          })
-        }
-      //})
+            RegisterOperation(Constants.UPDATE, TopicsConstants.job.crud, { job })
+          }
+        })
+      }
     }
 
     JobModels.Job.aggregate([

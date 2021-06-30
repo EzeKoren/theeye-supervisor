@@ -39,5 +39,5 @@ module.exports = {
   // Apply to the jobs created from this task,
   // will be only visible to the user/owner and the assigned_users.
   // if "true" acl will be empty on creation
-  empty_viewers: { type: Boolean, default: false },
+  empty_viewers: { type: Boolean, default: false }
 }
