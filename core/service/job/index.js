@@ -267,8 +267,7 @@ module.exports = {
 
     if (
       input.empty_viewers === true ||
-      workflow.empty_viewers === true ||
-      workflow.acl_dynamic === true // @TODO remove
+      workflow.empty_viewers === true
     ) {
       wJob.acl = []
     } else {
