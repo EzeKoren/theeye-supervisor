@@ -52,6 +52,7 @@ function WorkflowSchema (props) {
     },
     autoremove_completed_jobs: { type: Boolean },
     autoremove_completed_jobs_limit: { type: Number, 'default': 5 },
+    version: { type: Number }
   }
 
   BaseSchema.call(this, Object.assign({}, properties, props), specs)
